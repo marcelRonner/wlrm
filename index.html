@@ -1,1 +1,123 @@
-empty file
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WLRM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            font-weight: 900;
+            font-size: clamp(2rem, 20vw, 40rem);
+            letter-spacing: -0.05em;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        .half {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 25%;
+            flex-shrink: 0;
+        }
+
+        .left {
+            background-color: #000;
+            color: #fff;
+        }
+
+        .right {
+            background-color: #fff;
+            color: #000;
+        }
+
+        #l-cell {
+            position: relative;
+        }
+
+        #less-text {
+            position: absolute;
+            white-space: nowrap;
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -0.05em;
+            transform-origin: left top;
+        }
+
+        /* Responsive for smaller screens */
+        @media (max-width: 768px) {
+            body {
+                font-size: clamp(1.5rem, 15vw, 30rem);
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                font-size: clamp(1rem, 12vw, 20rem);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="half left">W</div>
+        <div class="half left" id="l-cell">
+            <span id="l-letter">L</span>
+            <span id="less-text">LESS</span>
+        </div>
+        <div class="half right">R</div>
+        <div class="half right">M</div>
+    </div>
+    <script>
+        function fitLessText() {
+            const lLetter = document.getElementById('l-letter');
+            const lessText = document.getElementById('less-text');
+            const lCell = document.getElementById('l-cell');
+
+            // Reset any previous transform so measurements are clean
+            lessText.style.transform = 'none';
+
+            const lRect = lLetter.getBoundingClientRect();
+            const cellRect = lCell.getBoundingClientRect();
+
+            // Step 1: set a reference font-size and get LESS width
+            lessText.style.fontSize = '100px';
+            const lessWidth100 = lessText.getBoundingClientRect().width;
+
+            // Step 2: scale font-size proportionally to approximate the right size
+            const approxSize = 100 * (lRect.width / lessWidth100);
+            lessText.style.fontSize = approxSize + 'px';
+
+            // Step 3: measure again after the new font-size and apply pixel-perfect scaleX
+            const lessWidthFinal = lessText.getBoundingClientRect().width;
+            const scaleX = lRect.width / lessWidthFinal;
+            lessText.style.transform = `scaleX(${scaleX})`;
+
+            // Position LESS just below L, left-aligned to L's left edge
+            lessText.style.top = (lRect.bottom - cellRect.top) + 'px';
+            lessText.style.left = (lRect.left - cellRect.left) + 'px';
+        }
+
+        window.addEventListener('load', fitLessText);
+        window.addEventListener('resize', fitLessText);
+    </script>
+</body>
+</html>

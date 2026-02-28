@@ -48,8 +48,36 @@
             color: #000;
         }
 
+        .forest-bg {
+            background-image: url('https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1600&q=80');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: #000;
+        }
+
+        .city-bg {
+            background-image: url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=1600&q=80&sat=-100');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: #fff;
+        }
+
         #l-cell {
             position: relative;
+        }
+
+        #m-cell {
+            position: relative;
+        }
+
+        #l-letter {
+            letter-spacing: 0;
+        }
+
+        #m-letter {
+            letter-spacing: 0;
         }
 
         #less-text {
@@ -58,7 +86,17 @@
             font-family: 'Arial', 'Helvetica', sans-serif;
             font-weight: 900;
             line-height: 1;
-            letter-spacing: -0.05em;
+            letter-spacing: 0;
+            transform-origin: left top;
+        }
+
+        #more-text {
+            position: absolute;
+            white-space: nowrap;
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: 0;
             transform-origin: left top;
         }
 
@@ -78,46 +116,116 @@
 </head>
 <body>
     <div class="container">
-        <div class="half left">W</div>
+        <div class="half left city-bg">W</div>
         <div class="half left" id="l-cell">
             <span id="l-letter">L</span>
             <span id="less-text">LESS</span>
         </div>
-        <div class="half right">R</div>
-        <div class="half right">M</div>
+        <div class="half right forest-bg">R</div>
+        <div class="half right" id="m-cell">
+            <span id="m-letter">M</span>
+            <span id="more-text">MORE</span>
+        </div>
     </div>
     <script>
-        function fitLessText() {
-            const lLetter = document.getElementById('l-letter');
-            const lessText = document.getElementById('less-text');
-            const lCell = document.getElementById('l-cell');
+        function measureInk(text, fontSize) {
+            const padding = Math.ceil(fontSize * 0.6);
+            const width = Math.ceil(fontSize * Math.max(4, text.length * 1.6)) + padding * 2;
+            const height = Math.ceil(fontSize * 2.4) + padding * 2;
 
-            // Reset any previous transform so measurements are clean
-            lessText.style.transform = 'none';
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
 
-            const lRect = lLetter.getBoundingClientRect();
-            const cellRect = lCell.getBoundingClientRect();
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#000';
+            ctx.textBaseline = 'alphabetic';
+            ctx.font = `900 ${fontSize}px Arial, Helvetica, sans-serif`;
 
-            // Step 1: set a reference font-size and get LESS width
-            lessText.style.fontSize = '100px';
-            const lessWidth100 = lessText.getBoundingClientRect().width;
+            const x = padding;
+            const y = padding + fontSize;
+            ctx.fillText(text, x, y);
 
-            // Step 2: scale font-size proportionally to approximate the right size
-            const approxSize = 100 * (lRect.width / lessWidth100);
-            lessText.style.fontSize = approxSize + 'px';
+            const data = ctx.getImageData(0, 0, width, height).data;
+            let minX = width;
+            let maxX = -1;
 
-            // Step 3: measure again after the new font-size and apply pixel-perfect scaleX
-            const lessWidthFinal = lessText.getBoundingClientRect().width;
-            const scaleX = lRect.width / lessWidthFinal;
-            lessText.style.transform = `scaleX(${scaleX})`;
+            for (let px = 0; px < width; px++) {
+                for (let py = 0; py < height; py++) {
+                    const alpha = data[(py * width + px) * 4 + 3];
+                    if (alpha > 0) {
+                        if (px < minX) minX = px;
+                        if (px > maxX) maxX = px;
+                    }
+                }
+            }
 
-            // Position LESS just below L, left-aligned to L's left edge
-            lessText.style.top = (lRect.bottom - cellRect.top) + 'px';
-            lessText.style.left = (lRect.left - cellRect.left) + 'px';
+            if (maxX < minX) {
+                return { width: 0, left: 0 };
+            }
+
+            return {
+                width: maxX - minX + 1,
+                left: minX - x
+            };
         }
 
-        window.addEventListener('load', fitLessText);
-        window.addEventListener('resize', fitLessText);
+        function fitSubText(letterId, subTextId, cellId) {
+            const letter = document.getElementById(letterId);
+            const subText = document.getElementById(subTextId);
+            const cell = document.getElementById(cellId);
+            if (!letter || !subText || !cell) return;
+
+            const letterChar = (letter.textContent || '').trim();
+            const subWord = (subText.textContent || '').trim();
+            if (!letterChar || !subWord) return;
+
+            const letterFontSize = parseFloat(window.getComputedStyle(letter).fontSize);
+
+            // Measure painted pixels (ink), not text box metrics.
+            const letterInk = measureInk(letterChar, letterFontSize);
+            const subInkAtLetterSize = measureInk(subWord, letterFontSize);
+            if (!letterInk.width || !subInkAtLetterSize.width) return;
+
+            // Size subtext so its painted width matches letter's painted width.
+            let subFontSize = letterFontSize * (letterInk.width / subInkAtLetterSize.width);
+            subText.style.fontSize = subFontSize + 'px';
+
+            // One correction pass for sub-pixel precision.
+            const subInkFirst = measureInk(subWord, subFontSize);
+            if (subInkFirst.width) {
+                subFontSize *= letterInk.width / subInkFirst.width;
+                subText.style.fontSize = subFontSize + 'px';
+            }
+
+            const subInkFinal = measureInk(subWord, subFontSize);
+
+            // Position subtext just below the letter.
+            const letterRect = letter.getBoundingClientRect();
+            const cellRect = cell.getBoundingClientRect();
+            const verticalTighten = Math.max(2, letterFontSize * 0.2);
+            subText.style.top = (letterRect.bottom - cellRect.top - verticalTighten) + 'px';
+
+            // Align by painted left edge (ink), not span box edge.
+            const visualLeftLetter = letterRect.left + letterInk.left;
+            const subLeft = visualLeftLetter - subInkFinal.left;
+            subText.style.left = (subLeft - cellRect.left) + 'px';
+        }
+
+        function fitSubTexts() {
+            fitSubText('l-letter', 'less-text', 'l-cell');
+            fitSubText('m-letter', 'more-text', 'm-cell');
+        }
+
+        window.addEventListener('load', () => {
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(fitSubTexts);
+            } else {
+                fitSubTexts();
+            }
+        });
+        window.addEventListener('resize', fitSubTexts);
     </script>
 </body>
 </html>

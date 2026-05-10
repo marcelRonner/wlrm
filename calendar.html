@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WLRM — Calendar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            font-family: 'Arial', 'Helvetica', sans-serif;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            background: #000;
+            color: #fff;
+        }
+
+        header a.home {
+            font-weight: 900;
+            font-size: 1.4rem;
+            letter-spacing: -0.04em;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        header a.home:hover {
+            opacity: 0.7;
+        }
+
+        .subscribe-links {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 2px solid #fff;
+            color: #fff;
+            background: transparent;
+            transition: background 0.15s, color 0.15s;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        .btn.secondary {
+            border-color: #555;
+            color: #aaa;
+        }
+
+        .btn.secondary:hover {
+            background: #555;
+            color: #fff;
+        }
+
+        .content {
+            display: flex;
+            width: 100%;
+            height: calc(100vh - 57px);
+        }
+
+        .sidebar {
+            width: 220px;
+            flex-shrink: 0;
+            background: #f5f5f5;
+            border-right: 1px solid #e0e0e0;
+            padding: 20px 16px;
+            overflow-y: auto;
+        }
+
+        .sidebar strong {
+            display: block;
+            font-weight: 900;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #000;
+            margin-bottom: 14px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sidebar ul li label {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: #333;
+            cursor: pointer;
+            line-height: 1.35;
+        }
+
+        .sidebar ul li input[type="checkbox"] {
+            margin-top: 2px;
+            flex-shrink: 0;
+            accent-color: #000;
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
+        }
+
+        .sidebar ul li label.checked {
+            color: #aaa;
+            text-decoration: line-through;
+        }
+
+        .calendar-wrapper {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .calendar-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+
+            .content {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+                padding: 16px;
+            }
+
+            .sidebar ul {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 8px 16px;
+            }
+
+            .calendar-wrapper {
+                height: 60vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a class="home" href="index.html">WLRM</a>
+        <div class="subscribe-links">
+            <a class="btn secondary"
+               href="https://calendar.google.com/calendar/ical/1d3c950676036b749ce1c6d5a071b773848e22554acd4f6047435b929e456018%40group.calendar.google.com/public/basic.ics"
+               title="Subscribe with any calendar app (iCal / Outlook / Apple Calendar)">
+                iCal
+            </a>
+            <a class="btn"
+               href="https://calendar.google.com/calendar/r?cid=1d3c950676036b749ce1c6d5a071b773848e22554acd4f6047435b929e456018%40group.calendar.google.com"
+               target="_blank"
+               rel="noopener noreferrer">
+                + Subscribe
+            </a>
+        </div>
+    </header>
+
+    <div class="content">
+        <aside class="sidebar">
+            <strong>Must-See Trails 2026</strong>
+            <ul>
+                <li><label><input type="checkbox" data-key="trail-0"> Mollis (E-Bike, 1600hm)</label></li>
+                <li><label><input type="checkbox" data-key="trail-1"> Ellhorn &ldquo;Cliffhanger&rdquo; (Regitzer Spitz)</label></li>
+                <li><label><input type="checkbox" data-key="trail-2"> Einsiedeln Meinhard Trails</label></li>
+                <li><label><input type="checkbox" data-key="trail-3"> Flums Evening Ride (Juli) + Nightride durch den Bikepark</label></li>
+                <li><label><input type="checkbox" data-key="trail-4"> Biketicket2Ride Black (Dani B. Version)</label></li>
+                <li><label><input type="checkbox" data-key="trail-5"> Flims grosse Runde (Vorab)</label></li>
+            </ul>
+        </aside>
+
+        <div class="calendar-wrapper">
+            <iframe
+                src="https://calendar.google.com/calendar/embed?src=1d3c950676036b749ce1c6d5a071b773848e22554acd4f6047435b929e456018%40group.calendar.google.com&showTitle=0&showNav=1&showDate=1&showPrint=0&showCalendars=0&showTz=1&mode=MONTH"
+                title="WLRM Calendar"
+                frameborder="0"
+                scrolling="no">
+            </iframe>
+        </div>
+    </div>
+
+    <script>
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+        checkboxes.forEach(cb => {
+            const key = 'wlrm-' + cb.dataset.key;
+            cb.checked = localStorage.getItem(key) === '1';
+            cb.closest('label').classList.toggle('checked', cb.checked);
+
+            cb.addEventListener('change', () => {
+                localStorage.setItem(key, cb.checked ? '1' : '0');
+                cb.closest('label').classList.toggle('checked', cb.checked);
+            });
+        });
+    </script>
+</body>
+</html>
